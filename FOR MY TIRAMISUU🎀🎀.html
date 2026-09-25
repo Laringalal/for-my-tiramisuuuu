@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Birthday Magazine</title>
+    <style>
+        /* منع أي حركة أو سكول للشاشة نفسها عشان تفضل ثابتة تماماً ومن غير اهتزاز */
+        html, body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+        }
+
+        /* Question Screen Styles */
+        #question-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            max-width: 500px;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #8F9E8B;
+        }
+
+        .hint {
+            font-size: 14px;
+            color: #aaaaaa;
+            margin-bottom: 40px;
+        }
+
+        .buttons-container {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        /* زر Yes باللون البينك */
+        #yes-btn {
+            background-color: #ff6b81;
+            color: #ffffff;
+            z-index: 10;
+        }
+
+        #yes-btn:hover {
+            background-color: #ff5268;
+        }
+
+        /* زر No باللون الرمادي */
+        #no-btn {
+            background-color: #7f8c8d;
+            color: #ffffff;
+        }
+
+        #no-btn:hover {
+            background-color: #717d7e;
+        }
+
+        #pleading-text {
+            position: absolute;
+            top: -15px;
+            font-size: 16px;
+            color: #ff6b81;
+            font-weight: bold;
+            display: none;
+        }
+
+        /* Magazine Viewer Styles */
+        #magazine-screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        .magazine-page-container {
+            max-width: 80vw;
+            max-height: 70vh;
+            overflow: hidden; /* منع تحريك الصورة نفسها وتثبيتها */
+            border: 2px solid #8F9E8B;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background-color: #000;
+        }
+
+        .magazine-page-container img {
+            width: 100%;
+            height: auto;
+            max-height: 70vh;
+            object-fit: contain;
+            display: block;
+            transform: scale(1);
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+
+        .nav-buttons-container {
+            position: absolute;
+            bottom: 25px;
+            right: 35px;
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background-color: #ff6b81;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-btn:hover {
+            background-color: #ff5268;
+        }
+
+        /* Celebration Screen Styles */
+        #celebration-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #1a1a1a;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            overflow: hidden;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        #celebration-screen h1 {
+            font-size: 32px;
+            color: #ff6b81;
+            z-index: 102;
+            text-shadow: 0 0 20px rgba(255,107,129,0.5);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* الفيونكات الطائرة في الخلفية لكل الشاشات (بعيدة عن الصور والأزرار) */
+        .flying-bow {
+            position: absolute;
+            font-size: 30px;
+            animation: fly-up 6s linear infinite;
+            z-index: 2;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        @keyframes fly-up {
+            0% {
+                transform: translateY(105vh) rotate(0deg);
+            }
+            100% {
+                transform: translateY(-10vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Q1 Screen -->
+    <div id="question-screen">
+        <h1>Are you ready to see your surprise? ✨</h1>
+        <div class="hint">(Hint: Try clicking "No" a few times first! 😉)</div>
+        <div class="buttons-container">
+            <div id="pleading-text">Please? 🥺</div>
+            <button id="yes-btn" class="btn" onclick="openMagazine()"><span>🎀</span> Yes</button>
+            <button id="no-btn" class="btn" onclick="handleNoClick()">No <span>🎀</span></button>
+        </div>
+    </div>
+
+    <!-- Magazine Screen -->
+    <div id="magazine-screen">
+        <div class="magazine-page-container">
+            <img id="magazine-img" src="" alt="Magazine Page" onclick="toggleZoom()">
+        </div>
+        <div class="nav-buttons-container">
+            <button id="back-btn" class="nav-btn" onclick="prevPage()" style="display: none;">◀ Back</button>
+            <button id="next-btn" class="nav-btn" onclick="nextPage()">Next Page 🎀</button>
+        </div>
+    </div>
+
+    <!-- Celebration Screen -->
+    <div id="celebration-screen">
+        <h1>🎉 HAPPY BIRTHDAY <br>ROKAAA! 🎂✨</h1>
+    </div>
+
+    <script>
+        const pages = [
+            "page1.png",
+            "page2.png",
+            "page3.png",
+            "page4.png",
+            "page5.png",
+            "page6.png",
+            "page7.png"
+        ];
+
+        let currentPageIndex = 0;
+        let noClickCount = 0;
+        const pleadingMessages = ["Please? 🥺", "Come on! 😭", "Don't do this! 💔", "Pretty please? ✨", "You have to press YES! 💖"];
+        
+        let yesBtnSize = 18;
+        let yesPaddingV = 12;
+        let yesPaddingH = 28;
+
+        // توليد فيونكات طائرة في الخلفية لكل الشاشات وثابتة من غير اهتزاز
+        window.onload = function() {
+            for (let i = 0; i < 18; i++) {
+                createFlyingBow(document.body, false);
+            }
+        };
+
+        function handleNoClick() {
+            noClickCount++;
+            
+            const textEl = document.getElementById("pleading-text");
+            textEl.style.display = "block";
+            textEl.innerText = pleadingMessages[(noClickCount - 1) % pleadingMessages.length];
+
+            yesBtnSize += 5;
+            yesPaddingV += 3;
+            yesPaddingH += 8;
+            
+            const yesBtn = document.getElementById("yes-btn");
+            yesBtn.style.fontSize = yesBtnSize + "px";
+            yesBtn.style.padding = `${yesPaddingV}px ${yesPaddingH}px`;
+        }
+
+        function openMagazine() {
+            document.getElementById("question-screen").style.display = "none";
+            document.getElementById("magazine-screen").style.display = "flex";
+            loadPage();
+        }
+
+        function loadPage() {
+            const imgElement = document.getElementById("magazine-img");
+            imgElement.src = pages[currentPageIndex];
+            
+            const backBtn = document.getElementById("back-btn");
+            const nextBtn = document.getElementById("next-btn");
+
+            if (currentPageIndex === 0) {
+                backBtn.style.display = "none";
+            } else {
+                backBtn.style.display = "inline-flex";
+            }
+
+            if (currentPageIndex === pages.length - 1) {
+                nextBtn.innerHTML = "END 🎀";
+            } else {
+                nextBtn.innerHTML = "Next Page 🎀";
+            }
+        }
+
+        function nextPage() {
+            currentPageIndex++;
+            if (currentPageIndex >= pages.length) {
+                showCelebration();
+            } else {
+                loadPage();
+            }
+        }
+
+        function prevPage() {
+            if (currentPageIndex > 0) {
+                currentPageIndex--;
+                loadPage();
+            }
+        }
+
+        let isZoomed = false;
+        function toggleZoom() {
+            const img = document.getElementById("magazine-img");
+            isZoomed = !isZoomed;
+            if (isZoomed) {
+                img.style.transform = "scale(1.7)";
+                img.style.cursor = "zoom-out";
+            } else {
+                img.style.transform = "scale(1)";
+                img.style.cursor = "zoom-in";
+            }
+        }
+
+        function showCelebration() {
+            document.getElementById("magazine-screen").style.display = "none";
+            const celebScreen = document.getElementById("celebration-screen");
+            celebScreen.style.display = "flex";
+
+            // زوّدنا الفيونكات في الشاشة الأخيرة زي ما طلبنا من غير تغيير حركتها الأساسية
+            for (let i = 0; i < 30; i++) {
+                createFlyingBow(celebScreen, true);
+            }
+        }
+
+        function createFlyingBow(container, isCelebration) {
+            const bow = document.createElement("div");
+            bow.className = "flying-bow";
+            bow.innerHTML = "🎀";
+            bow.style.left = Math.random() * 100 + "vw";
+            bow.style.animationDuration = (4 + Math.random() * 3) + "s";
+            bow.style.animationDelay = Math.random() * 3 + "s";
+            if(isCelebration) {
+                bow.style.zIndex = "101";
+                bow.style.opacity = "1";
+                bow.style.fontSize = "45px";
+            }
+            container.appendChild(bow);
+        }
+    </script>
+</body>
+</html>
